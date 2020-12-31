@@ -48,6 +48,7 @@ export const AddEntryDialog: React.FC<{
 
   const handleClickOpen = () => {
     setOpen(true);
+    setTime(dayjs().format('HH:MM'));
   };
 
   const handleClose = () => {

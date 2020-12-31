@@ -133,5 +133,6 @@ export const useGoogleApis = () => {
     handleLogout,
     editEventDescription,
     addingStatus,
+    reloadEvents,
   };
 };

@@ -20,7 +20,8 @@ const useStyles = makeStyles((theme) => ({
 export const NavBar: React.FC<{
   signedIn: boolean;
   onAuthChange: (state: 'login' | 'logout') => void;
-}> = ({ signedIn, onAuthChange }) => {
+  refresh: () => void;
+}> = ({ signedIn, onAuthChange, refresh }) => {
   const classes = useStyles();
   return (
     <AppBar position="static">
@@ -30,17 +31,31 @@ export const NavBar: React.FC<{
             KCETL
           </Typography>
           {signedIn ? (
-            <Button
-              color="inherit"
-              className={classes.menuButton}
-              onClick={() => {
-                onAuthChange('logout');
-              }}
-            >
-              Logout
-            </Button>
+            <>
+              <Button
+                variant="outlined"
+                color="inherit"
+                className={classes.menuButton}
+                onClick={() => {
+                  refresh();
+                }}
+              >
+                Refresh
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                className={classes.menuButton}
+                onClick={() => {
+                  onAuthChange('logout');
+                }}
+              >
+                Logout
+              </Button>
+            </>
           ) : (
             <Button
+              variant="outlined"
               color="inherit"
               className={classes.menuButton}
               onClick={() => {

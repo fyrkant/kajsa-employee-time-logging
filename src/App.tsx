@@ -51,6 +51,7 @@ const App: React.FC = () => {
     createNewEntry,
     events,
     addingStatus,
+    reloadEvents,
   } = useGoogleApis();
   const classes = useStyles();
 
@@ -62,6 +63,7 @@ const App: React.FC = () => {
   return (
     <>
       <NavBar
+        refresh={reloadEvents}
         signedIn={signedIn}
         onAuthChange={(state) => {
           const action = state === 'login' ? handleLogin : handleLogout;
