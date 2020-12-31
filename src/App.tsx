@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import './App.css';
+import { AddEntryDialog } from './components/AddEntryDialog';
 import { NavBar } from './components/NavBar';
 import { useGoogleApis } from './hooks/UseGoogleApi';
 
@@ -90,19 +90,19 @@ const App: React.FC = () => {
                 </Button>
               </>
             ) : (
-              <>
-                {filteredEvents.map((event, i) => (
-                  <Event key={event.id || i} event={event} />
-                ))}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAdding(true);
-                  }}
-                >
-                  Add entry
-                </button>
-              </>
+              filteredEvents.map((event, i) => (
+                <React.Fragment key={event.id || i}>
+                  <Event event={event} />
+                  <AddEntryDialog
+                    onAdd={(newLine) => {
+                      const description = event.description
+                        ? event.description + '\n'
+                        : '';
+                      editEventDescription(event, description + newLine);
+                    }}
+                  />
+                </React.Fragment>
+              ))
             )
           ) : (
             <Typography variant="body1">
@@ -110,32 +110,6 @@ const App: React.FC = () => {
             </Typography>
           )}
         </Card>
-        <div>
-          <div>
-            {adding ? (
-              <div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAdding(false);
-                    }}
-                  >
-                    X
-                  </button>
-                </div>
-                <div>
-                  <label htmlFor="time">
-                    Time
-                    <input name="time" type="time" ref={timeInputRef} />
-                  </label>
-                  <button type="button">Cancel</button>
-                  <button type="button">Save</button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </div>
       </Container>
     </>
   );
