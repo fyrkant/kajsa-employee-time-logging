@@ -7,6 +7,10 @@
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.2",
+    "@material-ui/icons": "^4.11.2",
+    "clsx": "^1.1.1",
+    "dayjs": "^1.9.8",
     "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },
@@ -17,6 +21,9 @@
     "@snowpack/web-test-runner-plugin": "^0.1.5",
     "@testing-library/react": "^11.0.0",
     "@types/chai": "^4.2.13",
+    "@types/gapi": "0.0.39",
+    "@types/gapi.auth2": "0.0.52",
+    "@types/gapi.client.calendar": "^3.0.10",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/snowpack-env": "^2.3.2",

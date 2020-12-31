@@ -1,41 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+// eslint-disable-next-line no-use-before-define
+import {
+  Button,
+  Card,
+  Container,
+  makeStyles,
+  Typography,
+} from '@material-ui/core';
+import dayjs from 'dayjs';
+import React from 'react';
 import './App.css';
+import { NavBar } from './components/NavBar';
+import { useGoogleApis } from './hooks/UseGoogleApi';
 
-interface AppProps {}
+const useStyles = makeStyles(() => ({
+  dateContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '1rem 0',
+  },
+  card: {
+    padding: '1rem',
+  },
+}));
 
-function App({}: AppProps) {
-  // Create the count state.
-  const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-  // Return the App component.
+const Event: React.FC<{
+  event: gapi.client.calendar.Event;
+}> = ({ event }) => {
+  const description = event.description || '';
+  const splat = description === '' ? [] : description.split('\n');
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <p>
-          Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
+    <div key={event.id} className="flex-grow">
+      <p>{event.summary}</p>
+      <ul>
+        {splat.map((l, i) => (
+          <li key={i}>{l}</li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+const App: React.FC = () => {
+  const [adding, setAdding] = React.useState(false);
+  const today = dayjs();
+  const {
+    signedIn,
+    handleLogin,
+    handleLogout,
+    editEventDescription,
+    createNewEntry,
+    events,
+    addingStatus,
+  } = useGoogleApis();
+  const classes = useStyles();
+
+  const filteredEvents = events.filter((e) => e.summary === 'KCETL ENTRY');
+  console.log(events);
+
+  const timeInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  return (
+    <>
+      <NavBar
+        signedIn={signedIn}
+        onAuthChange={(state) => {
+          const action = state === 'login' ? handleLogin : handleLogout;
+          action();
+        }}
+      />
+      <Container maxWidth="md">
+        <div className={classes.dateContainer}>
+          <Typography variant="h5">
+            Today ({today.format('YYYY-MM-DD')})
+          </Typography>
+        </div>
+        <Card className={classes.card}>
+          {signedIn ? (
+            filteredEvents.length === 0 ? (
+              <>
+                <p>No entry for this day!</p>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  type="button"
+                  disabled={addingStatus === 'loading'}
+                  onClick={createNewEntry}
+                >
+                  Create one
+                </Button>
+              </>
+            ) : (
+              <>
+                {filteredEvents.map((event, i) => (
+                  <Event key={event.id || i} event={event} />
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdding(true);
+                  }}
+                >
+                  Add entry
+                </button>
+              </>
+            )
+          ) : (
+            <Typography variant="body1">
+              Please log in to access the log.
+            </Typography>
+          )}
+        </Card>
+        <div>
+          <div>
+            {adding ? (
+              <div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdding(false);
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+                <div>
+                  <label htmlFor="time">
+                    Time
+                    <input name="time" type="time" ref={timeInputRef} />
+                  </label>
+                  <button type="button">Cancel</button>
+                  <button type="button">Save</button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </Container>
+    </>
+  );
+};
 
 export default App;
