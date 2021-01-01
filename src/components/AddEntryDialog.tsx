@@ -13,8 +13,6 @@ import {
   FormGroup,
   TextField,
 } from '@material-ui/core';
-import dayjs from 'dayjs';
-import { FormatListNumberedTwoTone } from '@material-ui/icons';
 
 const makeString = (time: string, s: Record<string, boolean>) => {
   const things = Object.entries(s)
@@ -35,11 +33,16 @@ const getEmptyState = () => {
   return checkboxes.reduce((o, [k]) => ({ ...o, [k]: false }), {});
 };
 
-export const AddEntryDialog: React.FC<{
+const getCurrentTime = () => {
+  const d = new Date();
+  return `${d.getHours()}:${d.getMinutes()}`;
+};
+
+export const AddLogEntryDialog: React.FC<{
   onAdd: (newDescriptionLine: string) => void;
 }> = ({ onAdd }) => {
   const [open, setOpen] = React.useState(false);
-  const [time, setTime] = React.useState(() => dayjs().format('HH:MM'));
+  const [time, setTime] = React.useState(getCurrentTime);
   const [state, setState] = React.useState<Record<string, boolean>>(
     getEmptyState,
   );
@@ -47,8 +50,8 @@ export const AddEntryDialog: React.FC<{
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleClickOpen = () => {
+    setTime(getCurrentTime());
     setOpen(true);
-    setTime(dayjs().format('HH:MM'));
   };
 
   const handleClose = () => {
@@ -64,8 +67,6 @@ export const AddEntryDialog: React.FC<{
     console.log(event);
     setState({ ...state, [event.target.name]: event.target.checked });
   };
-
-  console.log(state);
 
   return (
     <div>
@@ -135,6 +136,85 @@ export const AddEntryDialog: React.FC<{
               handleClose();
             }}
             disabled={Object.values(state).filter(Boolean).length < 1}
+            color="primary"
+            autoFocus
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export const AddGeneralEntryDialog: React.FC<{
+  onAdd: (newDescriptionLine: string) => void;
+}> = ({ onAdd }) => {
+  const [open, setOpen] = React.useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [val, setVal] = React.useState('');
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setVal(event.target.value);
+  };
+
+  return (
+    <div>
+      <Button
+        fullWidth
+        variant="outlined"
+        color="primary"
+        onClick={handleClickOpen}
+      >
+        Add entry
+      </Button>
+      <Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <DialogTitle id="responsive-dialog-title">
+          Add new entry to current day log
+        </DialogTitle>
+        <DialogContent>
+          <FormGroup>
+            <TextField
+              fullWidth
+              id="text"
+              label="Text"
+              name="text"
+              type="text"
+              value={val}
+              onChange={handleInputChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              inputProps={{
+                step: 300, // 5 min
+              }}
+            />
+          </FormGroup>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              onAdd(val);
+              handleClose();
+            }}
+            disabled={val.length < 1}
             color="primary"
             autoFocus
           >

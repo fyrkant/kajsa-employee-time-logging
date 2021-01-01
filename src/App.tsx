@@ -8,9 +8,9 @@ import {
 } from '@material-ui/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { AddEntryDialog } from './components/AddEntryDialog';
 import { NavBar } from './components/NavBar';
 import { useGoogleApis } from './hooks/UseGoogleApi';
+import { Event } from './components/Event';
 
 const useStyles = makeStyles(() => ({
   dateContainer: {
@@ -23,25 +23,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Event: React.FC<{
-  event: gapi.client.calendar.Event;
-}> = ({ event }) => {
-  const description = event.description || '';
-  const splat = description === '' ? [] : description.split('\n');
-  return (
-    <div key={event.id} className="flex-grow">
-      <p>{event.summary}</p>
-      <ul>
-        {splat.map((l, i) => (
-          <li key={i}>{l}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
 const App: React.FC = () => {
-  const [adding, setAdding] = React.useState(false);
   const today = dayjs();
   const {
     signedIn,
@@ -55,7 +37,7 @@ const App: React.FC = () => {
   } = useGoogleApis();
   const classes = useStyles();
 
-  const filteredEvents = events.filter((e) => e.summary === 'KCETL ENTRY');
+  const event = events.filter((e) => e.summary === 'KCETL ENTRY')[0];
   console.log(events);
 
   const timeInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -78,7 +60,7 @@ const App: React.FC = () => {
         </div>
         <Card className={classes.card}>
           {signedIn ? (
-            filteredEvents.length === 0 ? (
+            !event ? (
               <>
                 <p>No entry for this day!</p>
                 <Button
@@ -92,19 +74,7 @@ const App: React.FC = () => {
                 </Button>
               </>
             ) : (
-              filteredEvents.map((event, i) => (
-                <React.Fragment key={event.id || i}>
-                  <Event event={event} />
-                  <AddEntryDialog
-                    onAdd={(newLine) => {
-                      const description = event.description
-                        ? event.description + '\n'
-                        : '';
-                      editEventDescription(event, description + newLine);
-                    }}
-                  />
-                </React.Fragment>
-              ))
+              <Event event={event} editEvent={editEventDescription} />
             )
           ) : (
             <Typography variant="body1">

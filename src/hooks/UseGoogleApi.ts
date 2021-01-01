@@ -100,6 +100,7 @@ export const useGoogleApis = () => {
     setAddingStatus('loading');
     const event = {
       summary: 'KCETL ENTRY',
+      description: 'GENERAL:\n\nLOG:',
       start: {
         dateTime: `${today.format('YYYY-MM-DD')}T05:00:00`,
         timeZone: 'Europe/Stockholm',
