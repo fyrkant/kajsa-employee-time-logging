@@ -6,24 +6,32 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { useTheme } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import {
   Checkbox,
+  Chip,
   FormControlLabel,
   FormGroup,
   TextField,
 } from '@material-ui/core';
+import { FoodData, FoodInput } from './FoodInput';
 
-const makeString = (time: string, s: Record<string, boolean>) => {
+const makeString = (
+  time: string,
+  s: Record<string, boolean>,
+  food: FoodData[],
+) => {
   const things = Object.entries(s)
     .filter(([k, v]) => v)
     .map(([k]) => k);
 
-  return `${time} - ${things.join(', ')}`;
+  const foodArr = food.map((f) => `${f.side} ${f.time}min`);
+
+  return `${time} - ${[...foodArr, ...things].join(', ')}`;
 };
 
 const checkboxes: [string, string][] = [
-  ['food', 'Breastfeeding'],
+  // ['food', 'Breastfeeding'],
   ['poop', 'Poop'],
   ['pee', 'Pee'],
   ['sleep', 'Sleep'],
@@ -38,6 +46,20 @@ const getCurrentTime = () => {
   return `${d.getHours()}:${d.getMinutes()}`;
 };
 
+const useStyles = makeStyles((theme) => ({
+  chips: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    listStyle: 'none',
+    padding: theme.spacing(0.5),
+    margin: 0,
+  },
+  chip: {
+    margin: theme.spacing(0.5),
+  },
+}));
+
 export const AddLogEntryDialog: React.FC<{
   onAdd: (newDescriptionLine: string) => void;
 }> = ({ onAdd }) => {
@@ -46,8 +68,10 @@ export const AddLogEntryDialog: React.FC<{
   const [state, setState] = React.useState<Record<string, boolean>>(
     getEmptyState,
   );
+  const [food, setFood] = React.useState<FoodData[]>([]);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const classes = useStyles();
 
   const handleClickOpen = () => {
     setTime(getCurrentTime());
@@ -57,6 +81,7 @@ export const AddLogEntryDialog: React.FC<{
   const handleClose = () => {
     setOpen(false);
     setState(getEmptyState());
+    setFood([]);
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,6 +129,24 @@ export const AddLogEntryDialog: React.FC<{
                 step: 300, // 5 min
               }}
             />
+            <ul className={classes.chips}>
+              {food.map((f, i) => (
+                <li key={i + f.side + f.time}>
+                  <Chip
+                    label={`${f.side} ${f.time}min`}
+                    onDelete={() => {
+                      setFood([...food.slice(0, i), ...food.slice(i + 1)]);
+                    }}
+                    className={classes.chip}
+                  />
+                </li>
+              ))}
+            </ul>
+            <FoodInput
+              onChange={(x) => {
+                setFood([...food, x]);
+              }}
+            />
             {checkboxes.map(([k, l], i) => {
               return (
                 <FormControlLabel
@@ -123,7 +166,7 @@ export const AddLogEntryDialog: React.FC<{
           </FormGroup>
           <DialogContentText>
             Preview: <br />
-            {makeString(time, state)}
+            {makeString(time, state, food)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -132,10 +175,12 @@ export const AddLogEntryDialog: React.FC<{
           </Button>
           <Button
             onClick={() => {
-              onAdd(makeString(time, state));
+              onAdd(makeString(time, state, food));
               handleClose();
             }}
-            disabled={Object.values(state).filter(Boolean).length < 1}
+            disabled={
+              Object.values(state).filter(Boolean).length < 1 && food.length < 1
+            }
             color="primary"
             autoFocus
           >
