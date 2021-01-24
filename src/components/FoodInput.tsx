@@ -6,28 +6,36 @@ const useStyles = makeStyles((theme) => ({
   wrapper: {
     marginTop: '1rem',
   },
-  inactiveButton: {
-    color: '#ccc',
-    backgroundColor: theme.palette.primary.light,
+  activeButton: {
+    color: '#fff',
+    backgroundColor: theme.palette.primary.main,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.primary.contrastText,
+    },
   },
   inputWrap: {
     display: 'flex',
     alignItems: 'center',
     gap: '.5rem',
   },
+  unknownButton: {
+    minWidth: '1rem',
+  },
 }));
 export type FoodData = {
-  side: 'left' | 'right';
-  time: number;
+  side: 'left' | 'both' | 'right';
+  time: number | '?';
 };
 export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
   onChange,
 }) => {
   const [show, setShow] = React.useState(false);
-  const [val, setVal] = React.useState<{
-    side: 'left' | 'right';
-    time: number;
-  }>({ side: 'left', time: 4 });
+  const [val, setVal] = React.useState<{ unknownTime: boolean } & FoodData>({
+    side: 'left',
+    time: 4,
+    unknownTime: false,
+  });
   const classes = useStyles();
   return (
     <div className={classes.wrapper}>
@@ -38,10 +46,11 @@ export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
       ) : (
         <>
           <div className={classes.inputWrap}>
-            <ButtonGroup disableElevation variant="contained" color="primary">
+            <div></div>
+            <ButtonGroup disableElevation variant="outlined" color="primary">
               <Button
                 size="small"
-                className={clsx(val.side === 'right' && classes.inactiveButton)}
+                className={clsx(val.side === 'left' && classes.activeButton)}
                 onClick={() => {
                   setVal({ ...val, side: 'left' });
                 }}
@@ -50,7 +59,17 @@ export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
               </Button>
               <Button
                 size="small"
-                className={clsx(val.side === 'left' && classes.inactiveButton)}
+                className={clsx(val.side === 'both' && classes.activeButton)}
+                onClick={() => {
+                  setVal({ ...val, side: 'both' });
+                }}
+              >
+                Both
+              </Button>
+
+              <Button
+                size="small"
+                className={clsx(val.side === 'right' && classes.activeButton)}
                 onClick={() => {
                   setVal({ ...val, side: 'right' });
                 }}
@@ -59,18 +78,46 @@ export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
               </Button>
             </ButtonGroup>
             <TextField
+              disabled={val.unknownTime}
+              variant="outlined"
+              inputMode="decimal"
               type="number"
+              inputProps={{ step: '.5' }}
               value={val.time}
               onChange={(e) => {
                 const v = e.target.value;
-                setVal({ ...val, time: parseInt(v, 10) });
+                const p = parseFloat(v);
+                console.log(p);
+
+                if (!isNaN(p)) {
+                  setVal({ ...val, time: p });
+                }
               }}
               label="Time"
               InputLabelProps={{ shrink: true }}
             />
             <Button
+              variant="outlined"
+              className={clsx(
+                classes.unknownButton,
+                val.unknownTime ? classes.activeButton : undefined,
+              )}
+              size="small"
               onClick={() => {
-                onChange(val);
+                setVal({ ...val, unknownTime: !val.unknownTime });
+              }}
+            >
+              ?
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                onChange({
+                  side: val.side,
+                  time: val.unknownTime ? '?' : val.time,
+                });
+                setVal({ side: 'left', time: 4, unknownTime: false });
                 setShow(false);
               }}
             >

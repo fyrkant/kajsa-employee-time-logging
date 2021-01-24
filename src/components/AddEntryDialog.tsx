@@ -15,6 +15,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import { FoodData, FoodInput } from './FoodInput';
+import dayjs from 'dayjs';
 
 const makeString = (
   time: string,
@@ -42,8 +43,8 @@ const getEmptyState = () => {
 };
 
 const getCurrentTime = () => {
-  const d = new Date();
-  return `${d.getHours()}:${d.getMinutes()}`;
+  const d = dayjs(new Date());
+  return d.format('hh:mm');
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -58,13 +59,18 @@ const useStyles = makeStyles((theme) => ({
   chip: {
     margin: theme.spacing(0.5),
   },
+  content: {
+    [theme.breakpoints.down('sm')]: {
+      padding: '5px',
+    },
+  },
 }));
 
 export const AddLogEntryDialog: React.FC<{
   onAdd: (newDescriptionLine: string) => void;
 }> = ({ onAdd }) => {
   const [open, setOpen] = React.useState(false);
-  const [time, setTime] = React.useState(getCurrentTime);
+  const [time, setTime] = React.useState(() => getCurrentTime());
   const [state, setState] = React.useState<Record<string, boolean>>(
     getEmptyState,
   );
@@ -92,7 +98,7 @@ export const AddLogEntryDialog: React.FC<{
     console.log(event);
     setState({ ...state, [event.target.name]: event.target.checked });
   };
-
+  console.log(time);
   return (
     <div>
       <Button
@@ -112,7 +118,7 @@ export const AddLogEntryDialog: React.FC<{
         <DialogTitle id="responsive-dialog-title">
           Add new entry to current day log
         </DialogTitle>
-        <DialogContent>
+        <DialogContent className={classes.content}>
           <FormGroup>
             <TextField
               fullWidth
@@ -205,6 +211,7 @@ export const AddGeneralEntryDialog: React.FC<{
   };
 
   const handleClose = () => {
+    setVal('');
     setOpen(false);
   };
 

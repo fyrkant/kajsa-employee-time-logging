@@ -5,8 +5,8 @@ export const parseDescription = (input?: string) => {
   const splat = input.split('\n');
   const logIndex = splat.indexOf('LOG:');
 
-  const general = splat.slice(1, logIndex - 1);
-  const log = splat.slice(logIndex + 1);
+  const general = splat.slice(1, logIndex - 1).filter((x) => x !== '');
+  const log = splat.slice(logIndex + 1).filter((x) => x !== '');
 
   return { general, log };
 };
@@ -22,7 +22,7 @@ export const stringifyDescription = (input: Record<string, string[]>) => {
   });
 
   return `GENERAL:
-${general.join('\n')}
+${general.length > 0 ? general.join('\n') : ''}
 
 LOG:${sortedLogs.length > 0 ? '\n' + sortedLogs.join('\n') : ''}`;
 };
