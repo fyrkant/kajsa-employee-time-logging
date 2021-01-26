@@ -35,7 +35,8 @@ const checkboxes: [string, string][] = [
   // ['food', 'Breastfeeding'],
   ['poop', 'Poop'],
   ['pee', 'Pee'],
-  ['sleep', 'Sleep'],
+  ['fell-asleep', 'Fell asleep'],
+  ['woke-up', 'Woke up'],
 ];
 
 const getEmptyState = () => {

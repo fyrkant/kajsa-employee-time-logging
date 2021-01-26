@@ -10,28 +10,11 @@ import {
 import React from 'react';
 import { parseDescription, stringifyDescription } from '../utils/stringUtils';
 import { AddGeneralEntryDialog, AddLogEntryDialog } from './AddEntryDialog';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { ListedItem } from './ListedItem';
 
 const useStyles = makeStyles(() => ({
   logTitle: { marginTop: '1rem' },
 }));
-
-const ListedItem: React.FC<{
-  text: string;
-  onDelete: () => void;
-  onEdit?: () => void;
-}> = ({ text, onDelete, onEdit }) => {
-  return (
-    <ListItem>
-      <ListItemText>{text}</ListItemText>
-      <ListItemSecondaryAction>
-        <IconButton onClick={onDelete} edge="end" aria-label="delete">
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
-  );
-};
 
 export const Event: React.FC<{
   event: gapi.client.calendar.Event;
