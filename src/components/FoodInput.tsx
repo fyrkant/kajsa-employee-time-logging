@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 export type FoodData = {
   side: 'left' | 'both' | 'right';
-  time: number | '?';
+  time: number | '?' | '';
 };
 export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
   onChange,
@@ -83,13 +83,12 @@ export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
               inputMode="decimal"
               type="number"
               inputProps={{ step: '.5' }}
-              value={val.time}
+              value={typeof val.time === 'number' ? val.time : ''}
               onChange={(e) => {
                 const v = e.target.value;
-                const p = parseFloat(v);
-                console.log(p);
+                const p = v === '' ? '' : parseFloat(v);
 
-                if (!isNaN(p)) {
+                if (typeof p === 'number' ? !isNaN(p) : p) {
                   setVal({ ...val, time: p });
                 }
               }}

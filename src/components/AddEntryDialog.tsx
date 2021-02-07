@@ -45,7 +45,7 @@ const getEmptyState = () => {
 
 const getCurrentTime = () => {
   const d = dayjs(new Date());
-  return d.format('hh:mm');
+  return d.format('HH:mm');
 };
 
 const useStyles = makeStyles((theme) => ({
