@@ -85,12 +85,11 @@ export const FoodInput: React.FC<{ onChange: (x: FoodData) => void }> = ({
               inputProps={{ step: '.5' }}
               value={typeof val.time === 'number' ? val.time : ''}
               onChange={(e) => {
+                console.log(e.target.value);
                 const v = e.target.value;
                 const p = v === '' ? '' : parseFloat(v);
 
-                if (typeof p === 'number' ? !isNaN(p) : p) {
-                  setVal({ ...val, time: p });
-                }
+                setVal({ ...val, time: p });
               }}
               label="Time"
               InputLabelProps={{ shrink: true }}
