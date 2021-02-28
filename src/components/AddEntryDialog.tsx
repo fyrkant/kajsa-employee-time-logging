@@ -12,6 +12,7 @@ import {
   Chip,
   FormControlLabel,
   FormGroup,
+  OutlinedInput,
   TextField,
 } from '@material-ui/core';
 import { FoodData, FoodInput } from './FoodInput';
@@ -21,14 +22,16 @@ const makeString = (
   time: string,
   s: Record<string, boolean>,
   food: FoodData[],
+  freetext: string,
 ) => {
   const things = Object.entries(s)
     .filter(([k, v]) => v)
     .map(([k]) => k);
 
   const foodArr = food.map((f) => `${f.side} ${f.time}min`);
+  const t = freetext ? [`"${freetext}"`] : [];
 
-  return `${time} - ${[...foodArr, ...things].join(', ')}`;
+  return `${time} - ${[...t, ...foodArr, ...things].join(', ')}`;
 };
 
 const checkboxes: [string, string][] = [
@@ -54,13 +57,18 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     flexWrap: 'wrap',
     listStyle: 'none',
-    padding: theme.spacing(0.5),
     margin: 0,
   },
   chip: {
     margin: theme.spacing(0.5),
   },
   content: {
+    '& > div': {
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gap: 6,
+    },
+
     [theme.breakpoints.down('sm')]: {
       padding: '5px',
     },
@@ -75,6 +83,7 @@ export const AddLogEntryDialog: React.FC<{
   const [state, setState] = React.useState<Record<string, boolean>>(
     getEmptyState,
   );
+  const [freetext, setFreetext] = React.useState('');
   const [food, setFood] = React.useState<FoodData[]>([]);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -89,6 +98,7 @@ export const AddLogEntryDialog: React.FC<{
     setOpen(false);
     setState(getEmptyState());
     setFood([]);
+    setFreetext('');
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +122,7 @@ export const AddLogEntryDialog: React.FC<{
         open={open}
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
+        keepMounted={false}
       >
         <DialogTitle id="responsive-dialog-title">
           Add new entry to current day log
@@ -151,6 +162,19 @@ export const AddLogEntryDialog: React.FC<{
                 setFood([...food, x]);
               }}
             />
+            <TextField
+              fullWidth
+              id="freetext"
+              label="Free text"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={freetext}
+              onChange={(e) => {
+                const v = e.target.value;
+                setFreetext(v);
+              }}
+            />
             {checkboxes.map(([k, l], i) => {
               return (
                 <FormControlLabel
@@ -170,7 +194,7 @@ export const AddLogEntryDialog: React.FC<{
           </FormGroup>
           <DialogContentText>
             Preview: <br />
-            {makeString(time, state, food)}
+            {makeString(time, state, food, freetext)}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -179,11 +203,13 @@ export const AddLogEntryDialog: React.FC<{
           </Button>
           <Button
             onClick={() => {
-              onAdd(makeString(time, state, food));
+              onAdd(makeString(time, state, food, freetext));
               handleClose();
             }}
             disabled={
-              Object.values(state).filter(Boolean).length < 1 && food.length < 1
+              Object.values(state).filter(Boolean).length < 1 &&
+              food.length < 1 &&
+              !freetext
             }
             color="primary"
             autoFocus

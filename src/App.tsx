@@ -44,6 +44,7 @@ const useStyles = makeStyles(() => ({
         color: 'white',
       },
       '&:disabled': {
+        cursor: 'default',
         color: '#666',
         '&:hover,&:active,&:focus': {
           backgroundColor: 'inherit',
@@ -59,9 +60,6 @@ const useStyles = makeStyles(() => ({
 const CoolApp: React.FC = () => {
   const today = dayjs();
 
-  // const [currentDate, setCurrentDate] = React.useState(
-  //   today.format('YYYY-MM-DD'),
-  // );
   const { '*': date } = useParams();
   const currentDate = date.slice(1);
   const {

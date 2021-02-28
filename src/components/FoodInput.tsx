@@ -3,9 +3,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 const useStyles = makeStyles((theme) => ({
-  wrapper: {
-    marginTop: '1rem',
-  },
+  wrapper: {},
   activeButton: {
     color: '#fff',
     backgroundColor: theme.palette.primary.main,
