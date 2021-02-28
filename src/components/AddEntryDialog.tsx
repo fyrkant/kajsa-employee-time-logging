@@ -92,14 +92,11 @@ export const AddLogEntryDialog: React.FC<{
   };
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.value);
     setTime(event.target.value);
   };
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event);
     setState({ ...state, [event.target.name]: event.target.checked });
   };
-  console.log(time);
   return (
     <div>
       <Button

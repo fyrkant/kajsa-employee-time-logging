@@ -25,7 +25,6 @@ export const Event: React.FC<{
 }> = ({ event, editEvent }) => {
   const classes = useStyles();
   const { general, log } = parseDescription(event.description);
-  console.log(event.description, { general, log });
   const handleDelete = (i: number, type: 'general' | 'log') => {
     const arr = type === 'log' ? log : general;
     const newArr = [...arr.slice(0, i), ...arr.slice(i + 1)];

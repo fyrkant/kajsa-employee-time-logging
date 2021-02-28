@@ -8,11 +8,9 @@ const DISCOVERY_DOCS = [
   'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
 ];
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
-const today = dayjs();
-const todayString = today.subtract(1, 'day').format();
 type Status = 'idle' | 'loading' | 'resolved';
 
-export const useGoogleApis = () => {
+export const useGoogleApis = (date: string) => {
   const [signedIn, setSignedIn] = React.useState(false);
   const [events, setEvents] = React.useState<gapi.client.calendar.Event[]>([]);
   const [reloadString, setReloadString] = React.useState('initial');
@@ -28,7 +26,6 @@ export const useGoogleApis = () => {
           scope: SCOPES,
         })
         .then(function (x) {
-          console.log('HEJ');
           setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
         })
         .catch(() => {});
@@ -39,7 +36,7 @@ export const useGoogleApis = () => {
       gapi.client.calendar.events
         .list({
           calendarId: CALENDAR_ID,
-          timeMin: todayString,
+          timeMin: dayjs(date).format(),
           showDeleted: false,
           singleEvents: true,
           maxResults: 10,
@@ -54,13 +51,12 @@ export const useGoogleApis = () => {
         })
         .catch(() => {});
     }
-  }, [signedIn, todayString, reloadString]);
+  }, [signedIn, date, reloadString]);
   const handleLogin = () => {
     gapi.auth2
       .getAuthInstance()
       .signIn()
       .then((x) => {
-        console.log(x);
         setSignedIn(true);
         reloadEvents();
       })
@@ -102,11 +98,11 @@ export const useGoogleApis = () => {
       summary: 'KCETL ENTRY',
       description: 'GENERAL:\n\nLOG:',
       start: {
-        dateTime: `${today.format('YYYY-MM-DD')}T05:00:00`,
+        dateTime: `${date}T05:00:00`,
         timeZone: 'Europe/Stockholm',
       },
       end: {
-        dateTime: `${today.format('YYYY-MM-DD')}T06:00:00`,
+        dateTime: `${date}T06:00:00`,
         timeZone: 'Europe/Stockholm',
       },
     };

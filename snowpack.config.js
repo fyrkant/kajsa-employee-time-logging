@@ -4,37 +4,28 @@ module.exports = {
     public: { url: '/', static: true },
     src: { url: '/dist' },
   },
+
   plugins: [
     '@snowpack/plugin-react-refresh',
     '@snowpack/plugin-dotenv',
     '@snowpack/plugin-typescript',
   ],
-  install: [
-    /* ... */
-  ],
-  installOptions: {
-    /* ... */
-  },
   devOptions: {
     /* ... */
   },
+  routes: [{ match: 'routes', src: '.*', dest: '/index.html' }],
   buildOptions: {
     /* ... */
   },
   testOptions: {
     files: ['src/**/*.test.{ts,tsx}'],
   },
-  proxy: {
-    /* ... */
-  },
   alias: {
     /* ... */
   },
-  experiments: {
-    optimize: {
-      bundle: true,
-      minify: true,
-      target: 'es2018',
-    },
+  optimize: {
+    bundle: true,
+    minify: true,
+    target: 'es2018',
   },
 };
