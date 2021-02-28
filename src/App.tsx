@@ -23,6 +23,7 @@ import { Calendar, Chevron } from './components/Icons';
 const useStyles = makeStyles(() => ({
   dateContainer: {
     display: 'flex',
+    alignItems: 'center',
     justifyContent: 'space-between',
     padding: '1rem 0',
     '& button': {
@@ -63,6 +64,9 @@ const CoolApp: React.FC = () => {
   const { '*': date } = useParams();
   const currentDate = date.slice(1);
   const {
+    reloadEvents,
+    handleLogin,
+    handleLogout,
     signedIn,
     editEventDescription,
     createNewEntry,
@@ -83,82 +87,6 @@ const CoolApp: React.FC = () => {
   const isToday = dayjs(currentDate).isSame(today, 'day');
   return (
     <>
-      <div className={classes.dateContainer}>
-        <button
-          onClick={() => {
-            const d = dayjs(currentDate)
-              .subtract(1, 'day')
-              .format('YYYY-MM-DD');
-            navigate(`/${d}`);
-          }}
-        >
-          <Chevron />
-        </button>
-        <Typography variant="h5">
-          {isToday ? 'Today - ' : null}
-          {currentDate}
-        </Typography>
-        <div>
-          <button
-            title="Go to today"
-            disabled={isToday}
-            onClick={() => {
-              navigate(`/${today.format('YYYY-MM-DD')}`);
-            }}
-          >
-            <Calendar />
-          </button>
-
-          <button
-            disabled={isToday}
-            onClick={() => {
-              const d = dayjs(currentDate).add(1, 'day').format('YYYY-MM-DD');
-              navigate(`/${d}`);
-            }}
-          >
-            <Chevron />
-          </button>
-        </div>
-      </div>
-      <Card className={classes.card}>
-        {signedIn ? (
-          !event ? (
-            <>
-              <p>No entry for this day!</p>
-              <Button
-                variant="outlined"
-                fullWidth
-                type="button"
-                disabled={addingStatus === 'loading'}
-                onClick={createNewEntry}
-              >
-                Create one
-              </Button>
-            </>
-          ) : (
-            <Event event={event} editEvent={editEventDescription} />
-          )
-        ) : (
-          <Typography variant="body1">
-            Please log in to access the log.
-          </Typography>
-        )}
-      </Card>
-    </>
-  );
-};
-
-const App: React.FC = () => {
-  const today = dayjs();
-  const [currentDate, setCurrentDate] = React.useState(
-    today.format('YYYY-MM-DD'),
-  );
-  const { signedIn, handleLogin, handleLogout, reloadEvents } = useGoogleApis(
-    currentDate,
-  );
-
-  return (
-    <BrowserRouter>
       <NavBar
         refresh={reloadEvents}
         signedIn={signedIn}
@@ -168,10 +96,88 @@ const App: React.FC = () => {
         }}
       />
       <Container maxWidth="md">
-        <Routes>
-          <Route path="*" element={<CoolApp />} />
-        </Routes>
+        <div className={classes.dateContainer}>
+          {signedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  const d = dayjs(currentDate)
+                    .subtract(1, 'day')
+                    .format('YYYY-MM-DD');
+                  navigate(`/${d}`);
+                }}
+              >
+                <Chevron />
+              </button>
+              <Typography variant="h5">
+                {isToday ? 'Today - ' : null}
+                {currentDate}
+              </Typography>
+              <div>
+                <button
+                  title="Go to today"
+                  disabled={isToday}
+                  onClick={() => {
+                    navigate(`/${today.format('YYYY-MM-DD')}`);
+                  }}
+                >
+                  <Calendar />
+                </button>
+
+                <button
+                  disabled={isToday}
+                  onClick={() => {
+                    const d = dayjs(currentDate)
+                      .add(1, 'day')
+                      .format('YYYY-MM-DD');
+                    navigate(`/${d}`);
+                  }}
+                >
+                  <Chevron />
+                </button>
+              </div>
+            </>
+          ) : (
+            <p>&nbsp;</p>
+          )}
+        </div>
+        <Card className={classes.card}>
+          {signedIn ? (
+            !event ? (
+              <>
+                <p>No entry for this day!</p>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  type="button"
+                  disabled={addingStatus === 'loading'}
+                  onClick={createNewEntry}
+                >
+                  Create one
+                </Button>
+              </>
+            ) : (
+              <Event event={event} editEvent={editEventDescription} />
+            )
+          ) : (
+            <Typography variant="body1">
+              Please log in to access the log.
+            </Typography>
+          )}
+        </Card>
       </Container>
+    </>
+  );
+};
+
+const App: React.FC = () => {
+  const today = dayjs();
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<CoolApp />} />
+      </Routes>
     </BrowserRouter>
   );
 };
