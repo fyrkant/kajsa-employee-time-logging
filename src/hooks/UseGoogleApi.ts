@@ -25,8 +25,16 @@ export const useGoogleApis = (date: string) => {
           discoveryDocs: DISCOVERY_DOCS,
           scope: SCOPES,
         })
-        .then(function (x) {
-          setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
+        .then(() => {
+          const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
+          const user = gapi.auth2.getAuthInstance().currentUser.get();
+          user
+            .reloadAuthResponse()
+            .then((x) => {
+              setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
+            })
+            .catch(() => {});
+          setSignedIn(isSignedIn);
         })
         .catch(() => {});
     });
