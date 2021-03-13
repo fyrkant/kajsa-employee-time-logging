@@ -14,9 +14,11 @@ import {
   FormGroup,
   OutlinedInput,
   TextField,
+  Fab,
 } from '@material-ui/core';
 import { FoodData, FoodInput } from './FoodInput';
 import dayjs from 'dayjs';
+import AddIcon from '@material-ui/icons/Add';
 
 const makeString = (
   time: string,
@@ -73,6 +75,11 @@ const useStyles = makeStyles((theme) => ({
       padding: '5px',
     },
   },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
 }));
 
 export const AddLogEntryDialog: React.FC<{
@@ -109,14 +116,20 @@ export const AddLogEntryDialog: React.FC<{
   };
   return (
     <div>
-      <Button
-        fullWidth
-        variant="outlined"
-        color="primary"
-        onClick={handleClickOpen}
-      >
-        Add entry
-      </Button>
+      {fullScreen ? (
+        <Fab className={classes.fab} color="primary" onClick={handleClickOpen}>
+          <AddIcon />
+        </Fab>
+      ) : (
+        <Button
+          fullWidth
+          variant="outlined"
+          color="primary"
+          onClick={handleClickOpen}
+        >
+          Add entry
+        </Button>
+      )}
       <Dialog
         fullScreen={fullScreen}
         open={open}
