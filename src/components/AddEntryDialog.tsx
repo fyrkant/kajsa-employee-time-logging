@@ -1,24 +1,24 @@
-import React from 'react';
+import {
+  Checkbox,
+  Chip,
+  Fab,
+  FormControlLabel,
+  FormGroup,
+  TextField,
+} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import {
-  Checkbox,
-  Chip,
-  FormControlLabel,
-  FormGroup,
-  OutlinedInput,
-  TextField,
-  Fab,
-} from '@material-ui/core';
-import { FoodData, FoodInput } from './FoodInput';
-import dayjs from 'dayjs';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import AddIcon from '@material-ui/icons/Add';
+import dayjs from 'dayjs';
+import React from 'react';
+
+import { FoodData, FoodInput } from './FoodInput';
 
 const makeString = (
   time: string,
@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   fab: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: 20,
     right: 20,
   },

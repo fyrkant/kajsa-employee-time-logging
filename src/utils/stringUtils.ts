@@ -1,4 +1,6 @@
-export const parseDescription = (input?: string) => {
+export const parseDescription = (
+  input?: string,
+): { general: string[]; log: string[] } => {
   if (!input) {
     return { general: [], log: [] };
   }
