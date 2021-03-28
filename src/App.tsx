@@ -8,17 +8,18 @@ import {
 } from '@material-ui/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { NavBar } from './components/NavBar';
-import { useGoogleApis } from './hooks/UseGoogleApi';
-import { Event } from './components/Event';
 import {
   BrowserRouter,
   Route,
   Routes,
-  useParams,
   useNavigate,
+  useParams,
 } from 'react-router-dom';
+
+import { Event } from './components/Event';
 import { Calendar, Chevron } from './components/Icons';
+import { NavBar } from './components/NavBar';
+import { useGoogleApis } from './hooks/UseGoogleApi';
 
 const useStyles = makeStyles(() => ({
   dateContainer: {
@@ -171,8 +172,6 @@ const CoolApp: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const today = dayjs();
-
   return (
     <BrowserRouter>
       <Routes>

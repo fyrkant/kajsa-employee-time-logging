@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -10,7 +11,21 @@ const DISCOVERY_DOCS = [
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
 type Status = 'idle' | 'loading' | 'resolved';
 
-export const useGoogleApis = (date: string) => {
+export const useGoogleApis = (
+  date: string,
+): {
+  signedIn: boolean;
+  events: gapi.client.calendar.Event[];
+  createNewEntry: () => void;
+  handleLogin: () => void;
+  handleLogout: () => void;
+  editEventDescription: (
+    event: gapi.client.calendar.Event,
+    newDescription: string,
+  ) => void;
+  addingStatus: Status;
+  reloadEvents: () => void;
+} => {
   const [signedIn, setSignedIn] = React.useState(false);
   const [events, setEvents] = React.useState<gapi.client.calendar.Event[]>([]);
   const [reloadString, setReloadString] = React.useState('initial');
@@ -30,13 +45,17 @@ export const useGoogleApis = (date: string) => {
           const user = gapi.auth2.getAuthInstance().currentUser.get();
           user
             .reloadAuthResponse()
-            .then((x) => {
+            .then(() => {
               setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
             })
-            .catch(() => {});
+            .catch(() => {
+              // TODO: add error handling
+            });
           setSignedIn(isSignedIn);
         })
-        .catch(() => {});
+        .catch(() => {
+          // TODO: add error handling
+        });
     });
   }, []);
   React.useEffect(() => {
@@ -57,14 +76,16 @@ export const useGoogleApis = (date: string) => {
             setEvents(items);
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // TODO: add error handling
+        });
     }
   }, [signedIn, date, reloadString]);
   const handleLogin = () => {
     gapi.auth2
       .getAuthInstance()
       .signIn()
-      .then((x) => {
+      .then(() => {
         setSignedIn(true);
         reloadEvents();
       })
@@ -78,7 +99,9 @@ export const useGoogleApis = (date: string) => {
         setSignedIn(false);
         setEvents([]);
       })
-      .catch(() => {});
+      .catch(() => {
+        // TODO: add error handling
+      });
   };
   const editEventDescription = (
     event: gapi.client.calendar.Event,
@@ -97,7 +120,9 @@ export const useGoogleApis = (date: string) => {
         reloadEvents();
         console.log('patched event! ');
       })
-      .catch(() => {});
+      .catch(() => {
+        // TODO: add error handling
+      });
   };
   const [addingStatus, setAddingStatus] = React.useState<Status>('idle');
   const createNewEntry = () => {

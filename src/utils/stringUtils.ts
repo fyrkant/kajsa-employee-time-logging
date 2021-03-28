@@ -13,7 +13,9 @@ export const parseDescription = (
   return { general, log };
 };
 
-export const stringifyDescription = (input: Record<string, string[]>) => {
+export const stringifyDescription = (
+  input: Record<string, string[]>,
+): string => {
   const general = input.general || [];
   const log = input.log || [];
   const sortedLogs = log.sort((a, b) => {

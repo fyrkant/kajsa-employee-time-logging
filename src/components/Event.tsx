@@ -1,13 +1,6 @@
-import {
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  makeStyles,
-  Typography,
-  IconButton,
-} from '@material-ui/core';
+import { List, ListItem, makeStyles, Typography } from '@material-ui/core';
 import React from 'react';
+
 import { parseDescription, stringifyDescription } from '../utils/stringUtils';
 import { AddGeneralEntryDialog, AddLogEntryDialog } from './AddEntryDialog';
 import { ListedItem } from './ListedItem';

@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+
 import { parseDescription, stringifyDescription } from './stringUtils';
 
 describe('string utils test', () => {

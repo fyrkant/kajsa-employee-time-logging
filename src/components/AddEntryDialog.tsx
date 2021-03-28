@@ -1,20 +1,21 @@
 import {
+  Button,
   Checkbox,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Fab,
   FormControlLabel,
   FormGroup,
+  makeStyles,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import AddIcon from '@material-ui/icons/Add';
+import { Add } from '@material-ui/icons';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -27,7 +28,7 @@ const makeString = (
   freetext: string,
 ) => {
   const things = Object.entries(s)
-    .filter(([k, v]) => v)
+    .filter(([_k, v]) => v)
     .map(([k]) => k);
 
   const foodArr = food.map((f) => `${f.side} ${f.time}min`);
@@ -77,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
   },
   fab: {
     position: 'fixed',
-    bottom: 20,
+    bottom: 50,
     right: 20,
   },
 }));
@@ -118,7 +119,7 @@ export const AddLogEntryDialog: React.FC<{
     <div>
       {fullScreen ? (
         <Fab className={classes.fab} color="primary" onClick={handleClickOpen}>
-          <AddIcon />
+          <Add />
         </Fab>
       ) : (
         <Button
@@ -188,7 +189,7 @@ export const AddLogEntryDialog: React.FC<{
                 setFreetext(v);
               }}
             />
-            {checkboxes.map(([k, l], i) => {
+            {checkboxes.map(([k, l]) => {
               return (
                 <FormControlLabel
                   key={k}

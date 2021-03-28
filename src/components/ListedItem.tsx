@@ -1,12 +1,12 @@
 import {
+  IconButton,
   ListItem,
   ListItemText,
-  IconButton,
   makeStyles,
 } from '@material-ui/core';
-import React from 'react';
-import DeleteIcon from '@material-ui/icons/Delete';
 import CloseIcon from '@material-ui/icons/CloseRounded';
+import DeleteIcon from '@material-ui/icons/Delete';
+import React from 'react';
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -35,7 +35,7 @@ export const ListedItem: React.FC<{
   text: string;
   onDelete: () => void;
   onEdit?: () => void;
-}> = ({ text, onDelete, onEdit }) => {
+}> = ({ text, onDelete }) => {
   const [sureDelete, setSureDelete] = React.useState(false);
   const classes = useStyles();
   return (
