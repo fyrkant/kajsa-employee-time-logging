@@ -8,6 +8,8 @@ import {
 } from '@material-ui/core';
 import dayjs from 'dayjs';
 import React from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import {
   BrowserRouter,
   Route,
@@ -65,7 +67,6 @@ const CoolApp: React.FC = () => {
   const { '*': date } = useParams();
   const currentDate = date.slice(1);
   const {
-    reloadEvents,
     handleLogin,
     handleLogout,
     signedIn,
@@ -89,7 +90,6 @@ const CoolApp: React.FC = () => {
   return (
     <>
       <NavBar
-        refresh={reloadEvents}
         signedIn={signedIn}
         onAuthChange={(state) => {
           const action = state === 'login' ? handleLogin : handleLogout;
@@ -171,13 +171,18 @@ const CoolApp: React.FC = () => {
   );
 };
 
+const client = new QueryClient();
+
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="*" element={<CoolApp />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={client}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="*" element={<CoolApp />} />
+        </Routes>
+      </BrowserRouter>
+      <ReactQueryDevtools />
+    </QueryClientProvider>
   );
 };
 

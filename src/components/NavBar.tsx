@@ -20,8 +20,7 @@ const useStyles = makeStyles((theme) => ({
 export const NavBar: React.FC<{
   signedIn: boolean;
   onAuthChange: (state: 'login' | 'logout') => void;
-  refresh: () => void;
-}> = ({ signedIn, onAuthChange, refresh }) => {
+}> = ({ signedIn, onAuthChange }) => {
   const classes = useStyles();
   return (
     <AppBar position="static">
@@ -32,16 +31,6 @@ export const NavBar: React.FC<{
           </Typography>
           {signedIn ? (
             <>
-              <Button
-                variant="outlined"
-                color="inherit"
-                className={classes.menuButton}
-                onClick={() => {
-                  refresh();
-                }}
-              >
-                Refresh
-              </Button>
               <Button
                 variant="outlined"
                 color="inherit"

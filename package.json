@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "snowpack dev",
-    "build": "snowpack build",
+    "build": "NODE_ENV=production snowpack build",
     "test": "wtr \"src/**/*.test.{ts,tsx}\"",
     "test:watch": "wtr \"src/**/*.test.{ts,tsx}\" --watch",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -16,6 +16,7 @@
     "history": "^5.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-query": "^3.16.0",
     "react-router-dom": "^6.0.0-beta.0"
   },
   "devDependencies": {
@@ -31,19 +32,19 @@
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@types/snowpack-env": "^2.3.3",
-    "@web/test-runner": "^0.12.17",
-    "chai": "^4.3.4",
-    "prettier": "^2.2.1",
-    "snowpack": "^3.1.2",
-    "typescript": "^4.2.3",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
+    "@web/test-runner": "^0.12.17",
+    "chai": "^4.3.4",
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0"
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "prettier": "^2.2.1",
+    "snowpack": "^3.1.2",
+    "typescript": "^4.2.3"
   }
 }

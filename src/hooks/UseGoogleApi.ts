@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import dayjs from 'dayjs';
 import React from 'react';
+import { useQuery } from 'react-query';
 
 const API_KEY = import.meta.env.SNOWPACK_PUBLIC_API_KEY;
 const CLIENT_ID = import.meta.env.SNOWPACK_PUBLIC_CLIENT_ID;
@@ -8,7 +9,7 @@ const CALENDAR_ID = import.meta.env.SNOWPACK_PUBLIC_CALENDAR_ID;
 const DISCOVERY_DOCS = [
   'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
 ];
-const SCOPES = 'https://www.googleapis.com/auth/calendar';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events.owned';
 type Status = 'idle' | 'loading' | 'resolved';
 
 export const useGoogleApis = (
@@ -27,9 +28,25 @@ export const useGoogleApis = (
   reloadEvents: () => void;
 } => {
   const [signedIn, setSignedIn] = React.useState(false);
-  const [events, setEvents] = React.useState<gapi.client.calendar.Event[]>([]);
-  const [reloadString, setReloadString] = React.useState('initial');
-  const reloadEvents = () => setReloadString(String(new Date().getTime()));
+
+  const q = {
+    calendarId: CALENDAR_ID,
+    timeMin: dayjs(date).format(),
+    showDeleted: false,
+    singleEvents: true,
+    maxResults: 10,
+    orderBy: 'startTime',
+  };
+  const { data: events = [], refetch, remove } = useQuery(
+    ['items', q],
+    () =>
+      gapi.client.calendar.events.list(q).then((response) => {
+        const { items } = response.result;
+
+        return items;
+      }),
+    { enabled: signedIn },
+  );
 
   React.useEffect(() => {
     gapi.load('client:auth2', () => {
@@ -43,51 +60,32 @@ export const useGoogleApis = (
         .then(() => {
           const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
           const user = gapi.auth2.getAuthInstance().currentUser.get();
-          user
-            .reloadAuthResponse()
-            .then(() => {
-              setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
-            })
-            .catch(() => {
-              // TODO: add error handling
-            });
-          setSignedIn(isSignedIn);
+
+          if (isSignedIn) {
+            setSignedIn(isSignedIn);
+          } else {
+            user
+              .reloadAuthResponse()
+              .then(() => {
+                setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
+              })
+              .catch(() => {
+                // TODO: add error handling
+              });
+          }
         })
         .catch(() => {
           // TODO: add error handling
         });
     });
   }, []);
-  React.useEffect(() => {
-    if (signedIn) {
-      gapi.client.calendar.events
-        .list({
-          calendarId: CALENDAR_ID,
-          timeMin: dayjs(date).format(),
-          showDeleted: false,
-          singleEvents: true,
-          maxResults: 10,
-          orderBy: 'startTime',
-        })
-        .then(function (response) {
-          const { items } = response.result;
-
-          if (items) {
-            setEvents(items);
-          }
-        })
-        .catch(() => {
-          // TODO: add error handling
-        });
-    }
-  }, [signedIn, date, reloadString]);
   const handleLogin = () => {
     gapi.auth2
       .getAuthInstance()
       .signIn()
       .then(() => {
         setSignedIn(true);
-        reloadEvents();
+        refetch();
       })
       .catch((err) => {
         console.log({ err });
@@ -97,7 +95,7 @@ export const useGoogleApis = (
     (gapi.auth2.getAuthInstance().signOut() as Promise<void>)
       .then(() => {
         setSignedIn(false);
-        setEvents([]);
+        remove();
       })
       .catch(() => {
         // TODO: add error handling
@@ -117,7 +115,7 @@ export const useGoogleApis = (
     );
     request
       .then(() => {
-        reloadEvents();
+        refetch();
         console.log('patched event! ');
       })
       .catch(() => {
@@ -146,7 +144,7 @@ export const useGoogleApis = (
       })
       .then((res) => {
         setAddingStatus('resolved');
-        reloadEvents();
+        refetch();
         console.log('added new!', res);
       })
       .catch((err) => {
@@ -163,6 +161,6 @@ export const useGoogleApis = (
     handleLogout,
     editEventDescription,
     addingStatus,
-    reloadEvents,
+    reloadEvents: refetch,
   };
 };

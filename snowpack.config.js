@@ -24,6 +24,7 @@ module.exports = {
     /* ... */
   },
   optimize: {
+    splitting: true,
     bundle: true,
     minify: true,
     target: 'es2018',
