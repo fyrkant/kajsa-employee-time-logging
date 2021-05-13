@@ -84,8 +84,6 @@ const CoolApp: React.FC = () => {
       dayjs(e.start.dateTime).isSame(dayjs(currentDate), 'day'),
   )[0];
 
-  console.log(currentDate, event);
-
   const navigate = useNavigate();
 
   React.useEffect(() => {
