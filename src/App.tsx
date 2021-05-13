@@ -73,11 +73,19 @@ const CoolApp: React.FC = () => {
     editEventDescription,
     createNewEntry,
     events,
-    addingStatus,
+    isAdding,
   } = useGoogleApis(currentDate);
   const classes = useStyles();
 
-  const event = events.filter((e) => e.summary === 'KCETL ENTRY')[0];
+  const event = events.filter(
+    (e) =>
+      e.summary === 'KCETL ENTRY' &&
+      e.start &&
+      dayjs(e.start.dateTime).isSame(dayjs(currentDate), 'day'),
+  )[0];
+
+  console.log(currentDate, event);
+
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -151,7 +159,7 @@ const CoolApp: React.FC = () => {
                   variant="outlined"
                   fullWidth
                   type="button"
-                  disabled={addingStatus === 'loading'}
+                  disabled={isAdding}
                   onClick={createNewEntry}
                 >
                   Create one

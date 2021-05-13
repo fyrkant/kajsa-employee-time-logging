@@ -1,16 +1,13 @@
 /* eslint-disable no-console */
 import dayjs from 'dayjs';
-import React from 'react';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
-const API_KEY = import.meta.env.SNOWPACK_PUBLIC_API_KEY;
-const CLIENT_ID = import.meta.env.SNOWPACK_PUBLIC_CLIENT_ID;
+import { useFirebaseLogin } from './UseFirebaseLogin';
+
+const API_KEY = import.meta.env.SNOWPACK_PUBLIC_FIREBASE_API_KEY;
 const CALENDAR_ID = import.meta.env.SNOWPACK_PUBLIC_CALENDAR_ID;
-const DISCOVERY_DOCS = [
-  'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
-];
-const SCOPES = 'https://www.googleapis.com/auth/calendar.events.owned';
-type Status = 'idle' | 'loading' | 'resolved';
+
+const base = 'https://www.googleapis.com/calendar/v3';
 
 export const useGoogleApis = (
   date: string,
@@ -24,143 +21,113 @@ export const useGoogleApis = (
     event: gapi.client.calendar.Event,
     newDescription: string,
   ) => void;
-  addingStatus: Status;
+  isAdding: boolean;
   reloadEvents: () => void;
 } => {
-  const [signedIn, setSignedIn] = React.useState(false);
+  const [login, logout, signedIn, token] = useFirebaseLogin();
 
-  const q = {
-    calendarId: CALENDAR_ID,
-    timeMin: dayjs(date).format(),
-    showDeleted: false,
-    singleEvents: true,
-    maxResults: 10,
-    orderBy: 'startTime',
+  const queryClient = useQueryClient();
+
+  const authHeader = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   };
-  const { data: events = [], refetch, remove } = useQuery(
-    ['items', q],
-    () =>
-      gapi.client.calendar.events.list(q).then((response) => {
-        const { items } = response.result;
 
-        return items;
-      }),
+  const search = new URLSearchParams({
+    timeMin: dayjs(date).format(),
+    showDeleted: 'false',
+    singleEvents: 'true',
+    maxResults: '10',
+    orderBy: 'startTime',
+    key: API_KEY,
+  }).toString();
+  const { data: events = [], refetch, remove } = useQuery(
+    ['items', search],
+    () => {
+      return fetch(`${base}/calendars/${CALENDAR_ID}/events?${search}`, {
+        credentials: 'same-origin',
+        ...authHeader,
+      }).then(async (x) => {
+        const json = await x.json();
+
+        return json.items;
+      });
+    },
     { enabled: signedIn },
   );
 
-  React.useEffect(() => {
-    gapi.load('client:auth2', () => {
-      gapi.client
-        .init({
-          apiKey: API_KEY,
-          clientId: CLIENT_ID,
-          discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES,
-        })
-        .then(() => {
-          const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
-          const user = gapi.auth2.getAuthInstance().currentUser.get();
+  const addEventMutation = useMutation(
+    () =>
+      fetch(`${base}/calendars/${CALENDAR_ID}/events`, {
+        method: 'POST',
+        body: JSON.stringify({
+          summary: 'KCETL ENTRY',
+          description: 'GENERAL:\n\nLOG:',
+          start: {
+            dateTime: `${date}T05:00:00`,
+            timeZone: 'Europe/Stockholm',
+          },
+          end: {
+            dateTime: `${date}T06:00:00`,
+            timeZone: 'Europe/Stockholm',
+          },
+        }),
+        credentials: 'same-origin',
+        ...authHeader,
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['items']);
+      },
+    },
+  );
+  const editEventMutation = useMutation(
+    ({ id, description }: { id: string; description: string }) =>
+      fetch(`${base}/calendars/${CALENDAR_ID}/events/${id}?key=${API_KEY}`, {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        mode: 'cors',
+        body: JSON.stringify({ description }),
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+          ...authHeader.headers,
+        },
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['items']);
+      },
+    },
+  );
 
-          if (isSignedIn) {
-            setSignedIn(isSignedIn);
-          } else {
-            user
-              .reloadAuthResponse()
-              .then(() => {
-                setSignedIn(gapi.auth2.getAuthInstance().isSignedIn.get());
-              })
-              .catch(() => {
-                // TODO: add error handling
-              });
-          }
-        })
-        .catch(() => {
-          // TODO: add error handling
-        });
-    });
-  }, []);
   const handleLogin = () => {
-    gapi.auth2
-      .getAuthInstance()
-      .signIn()
-      .then(() => {
-        setSignedIn(true);
-        refetch();
-      })
-      .catch((err) => {
-        console.log({ err });
-      });
+    login();
   };
   const handleLogout = () => {
-    (gapi.auth2.getAuthInstance().signOut() as Promise<void>)
-      .then(() => {
-        setSignedIn(false);
-        remove();
-      })
-      .catch(() => {
-        // TODO: add error handling
-      });
+    logout().then(() => {
+      remove();
+    });
   };
   const editEventDescription = (
     event: gapi.client.calendar.Event,
     newDescription: string,
   ) => {
-    const request = gapi.client.calendar.events.patch(
-      {
-        calendarId: CALENDAR_ID,
-        eventId: event.id || '',
-        fields: 'description',
-      },
-      { description: newDescription },
-    );
-    request
-      .then(() => {
-        refetch();
-        console.log('patched event! ');
-      })
-      .catch(() => {
-        // TODO: add error handling
-      });
-  };
-  const [addingStatus, setAddingStatus] = React.useState<Status>('idle');
-  const createNewEntry = () => {
-    setAddingStatus('loading');
-    const event = {
-      summary: 'KCETL ENTRY',
-      description: 'GENERAL:\n\nLOG:',
-      start: {
-        dateTime: `${date}T05:00:00`,
-        timeZone: 'Europe/Stockholm',
-      },
-      end: {
-        dateTime: `${date}T06:00:00`,
-        timeZone: 'Europe/Stockholm',
-      },
-    };
-    gapi.client.calendar.events
-      .insert({
-        calendarId: CALENDAR_ID,
-        resource: event,
-      })
-      .then((res) => {
-        setAddingStatus('resolved');
-        refetch();
-        console.log('added new!', res);
-      })
-      .catch((err) => {
-        setAddingStatus('resolved');
-        console.log(err);
-      });
+    editEventMutation.mutate({
+      id: event.id || '',
+      description: newDescription,
+    });
   };
 
   return {
     signedIn,
     events,
-    createNewEntry,
+    createNewEntry: addEventMutation.mutate,
     handleLogin,
     handleLogout,
     editEventDescription,
-    addingStatus,
+    isAdding: addEventMutation.isLoading,
     reloadEvents: refetch,
   };
 };
