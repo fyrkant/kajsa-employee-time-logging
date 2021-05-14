@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import dayjs from 'dayjs';
+import ky from 'ky';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { useFirebaseLogin } from './UseFirebaseLogin';
@@ -45,16 +46,22 @@ export const useGoogleApis = (
   const { data: events = [], refetch, remove } = useQuery(
     ['items', search],
     () => {
-      return fetch(`${base}/calendars/${CALENDAR_ID}/events?${search}`, {
-        credentials: 'same-origin',
-        ...authHeader,
-      }).then(async (x) => {
-        const json = await x.json();
-
-        return json.items;
-      });
+      return ky
+        .get(`${base}/calendars/${CALENDAR_ID}/events?${search}`, {
+          credentials: 'same-origin',
+          ...authHeader,
+        })
+        .json<{ items: gapi.client.calendar.Event[] }>()
+        .then((res) => res.items)
+        .catch((err) => {
+          if (err.response.status === 401) {
+            login();
+          }
+        });
     },
-    { enabled: signedIn },
+    {
+      enabled: signedIn,
+    },
   );
 
   const addEventMutation = useMutation(

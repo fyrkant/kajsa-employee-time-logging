@@ -13,18 +13,21 @@ export const useLocalStorage = <T>(
     }
   });
 
-  const setValue = (value: T) => {
-    try {
-      setStoredValue(value);
-      if (typeof value === 'undefined') {
-        localStorage.removeItem(key);
-      } else {
-        localStorage.setItem(key, JSON.stringify(value));
+  const setValue = React.useCallback(
+    (key: string) => (value: T) => {
+      try {
+        setStoredValue(value);
+        if (typeof value === 'undefined') {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      } catch (error) {
+        // no-op
       }
-    } catch (error) {
-      // no-op
-    }
-  };
+    },
+    [],
+  );
 
-  return [storedValue, setValue];
+  return [storedValue, setValue(key)];
 };

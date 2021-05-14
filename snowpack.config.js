@@ -11,7 +11,7 @@ module.exports = {
     '@snowpack/plugin-typescript',
   ],
   devOptions: {
-    /* ... */
+    open: 'none',
   },
   routes: [{ match: 'routes', src: '.*', dest: '/index.html' }],
   buildOptions: {

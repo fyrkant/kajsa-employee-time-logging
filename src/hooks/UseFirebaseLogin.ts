@@ -1,13 +1,24 @@
-import firebase from 'firebase/app';
+import {
+  browserLocalPersistence,
+  getAuth,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  setPersistence,
+  signInWithPopup,
+  signOut,
+  UserCredential,
+} from 'firebase/auth';
 import React from 'react';
 
+import { firebaseApp } from '../utils/initFirebase';
 import { useLocalStorage } from './UseLocalstorage';
 
-const provider = new firebase.auth.GoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/calendar.events.owned');
+const auth = getAuth(firebaseApp);
 
 export const useFirebaseLogin = (): [
-  () => Promise<firebase.auth.UserCredential>,
+  () => Promise<UserCredential>,
   () => Promise<void>,
   boolean,
   string,
@@ -15,32 +26,28 @@ export const useFirebaseLogin = (): [
   const [token, setToken] = useLocalStorage<string>('access-token');
   const [loggedIn, setLoggedIn] = React.useState(false);
 
-  const login = (): Promise<firebase.auth.UserCredential> => {
-    return firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() =>
-        firebase
-          .auth()
-          .signInWithPopup(provider as firebase.auth.GoogleAuthProvider)
-          .then((result) => {
-            if (result.credential) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const t = (result.credential as any).accessToken as string;
-              setToken(t);
-            }
+  const login = React.useCallback((): Promise<UserCredential> => {
+    return setPersistence(auth, browserLocalPersistence).then(() =>
+      signInWithPopup(auth, provider as GoogleAuthProvider).then((result) => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential) {
+          const t = credential.accessToken;
+          if (t) {
+            setToken(t);
+          }
+        }
 
-            return result;
-          }),
-      );
-  };
+        return result;
+      }),
+    );
+  }, [setToken]);
 
-  const logout = (): Promise<void> => {
-    return firebase.auth().signOut();
-  };
+  const logout = React.useCallback((): Promise<void> => {
+    return signOut(auth);
+  }, []);
 
   React.useEffect(() => {
-    firebase.auth().onAuthStateChanged((o) => {
+    onAuthStateChanged(auth, (o) => {
       if (o) {
         setLoggedIn(true);
       } else {
