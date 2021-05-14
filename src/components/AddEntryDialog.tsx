@@ -88,9 +88,8 @@ export const AddLogEntryDialog: React.FC<{
 }> = ({ onAdd }) => {
   const [open, setOpen] = React.useState(false);
   const [time, setTime] = React.useState(() => getCurrentTime());
-  const [state, setState] = React.useState<Record<string, boolean>>(
-    getEmptyState,
-  );
+  const [state, setState] =
+    React.useState<Record<string, boolean>>(getEmptyState);
   const [freetext, setFreetext] = React.useState('');
   const [food, setFood] = React.useState<FoodData[]>([]);
   const theme = useTheme();

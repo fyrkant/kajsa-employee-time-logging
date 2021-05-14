@@ -43,7 +43,11 @@ export const useGoogleApis = (
     orderBy: 'startTime',
     key: API_KEY,
   }).toString();
-  const { data: events = [], refetch, remove } = useQuery(
+  const {
+    data: events = [],
+    refetch,
+    remove,
+  } = useQuery(
     ['items', search],
     () => {
       return ky
