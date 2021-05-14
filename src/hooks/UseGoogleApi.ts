@@ -59,7 +59,7 @@ export const useGoogleApis = (
         .then((res) => res.items)
         .catch((err) => {
           if (err.response.status === 401) {
-            login();
+            logout();
           }
         });
     },

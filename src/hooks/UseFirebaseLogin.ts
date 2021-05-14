@@ -5,6 +5,7 @@ import {
   onAuthStateChanged,
   setPersistence,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   UserCredential,
 } from 'firebase/auth';
@@ -23,13 +24,14 @@ export const useFirebaseLogin = (): [
   boolean,
   string,
 ] => {
-  const [token, setToken] = useLocalStorage<string>('access-token');
+  const [token, setToken] = useLocalStorage<string | null>('access-token');
   const [loggedIn, setLoggedIn] = React.useState(false);
 
   const login = React.useCallback((): Promise<UserCredential> => {
     return setPersistence(auth, browserLocalPersistence).then(() =>
       signInWithPopup(auth, provider as GoogleAuthProvider).then((result) => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
+        debugger;
         if (credential) {
           const t = credential.accessToken;
           if (t) {
@@ -43,8 +45,10 @@ export const useFirebaseLogin = (): [
   }, [setToken]);
 
   const logout = React.useCallback((): Promise<void> => {
-    return signOut(auth);
-  }, []);
+    return signOut(auth).then(() => {
+      setToken(null);
+    });
+  }, [setToken]);
 
   React.useEffect(() => {
     onAuthStateChanged(auth, (o) => {
@@ -56,5 +60,5 @@ export const useFirebaseLogin = (): [
     });
   }, []);
 
-  return [login, logout, loggedIn, token];
+  return [login, logout, loggedIn, token || ''];
 };
